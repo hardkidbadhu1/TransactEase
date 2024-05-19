@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  transact_db:
+    image: mariadb:10.5.8
+    restart: always
+    ports:
+      - "3306:3306"
+    env_file:
+      - docker-compose-local.env
+    healthcheck:
+      test: [ "CMD-SHELL", "/usr/local/bin/mysql-healthcheck.sh" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+        - ./docker-compose-scripts/db-health-check.sh:/usr/local/bin/mysql-healthcheck.sh
+
+  db_migrate:
+    image: db_migrate
+    build:
+      context: .
+      dockerfile: infrastructure/Migrate.Dockerfile
+    depends_on:
+      transact_db : # this is the service name
+        condition: service_healthy
+    env_file:
+      - docker-compose-local.env
+    volumes:
+      - db_data:/db_data
+    command: ["/bin/sh", "-c", "/migrate/db/migrations/db-migration.sh"]
+
+volumes:
+  db_data:
+
+networks:
+  transact_network:
+    driver: bridge

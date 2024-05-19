@@ -1,0 +1,27 @@
+definitions:
+  model.HealthResponse:
+    properties:
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /healthz:
+    get:
+      consumes:
+      - application/json
+      description: Health check endpoint
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.HealthResponse'
+      summary: Health check endpoint
+      tags:
+      - Health
+swagger: "2.0"

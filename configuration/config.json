@@ -1,0 +1,16 @@
+{
+  "app_name": "TransactEase",
+  "app_mode": "debug",
+  "port": "8080",
+  "read_timeout": 30,
+  "write_timeout": 30,
+  "max_idle_time_out": 30,
+  "server_timeout": 30,
+  "db_config": {
+    "host": "localhost",
+    "port": 3306,
+    "user": "testuser",
+    "dbname": "testdb"
+  },
+  "app_host": "localhost:8080"
+}
