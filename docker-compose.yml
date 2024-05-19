@@ -1,37 +1,51 @@
-version: '3.8'
+
 services:
-  transact_db:
-    image: mariadb:10.5.8
+  db:
+    image: postgres
     restart: always
     ports:
-      - "3306:3306"
+      - "5432:5432"
     env_file:
       - docker-compose-local.env
-    healthcheck:
-      test: [ "CMD-SHELL", "/usr/local/bin/mysql-healthcheck.sh" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     volumes:
-        - ./docker-compose-scripts/db-health-check.sh:/usr/local/bin/mysql-healthcheck.sh
+      - pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    env_file:
+      - docker-compose-local.env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
   db_migrate:
-    image: db_migrate
+    image: transact-api-migrate
     build:
       context: .
       dockerfile: infrastructure/Migrate.Dockerfile
     depends_on:
-      transact_db : # this is the service name
-        condition: service_healthy
+      - db
     env_file:
       - docker-compose-local.env
     volumes:
-      - db_data:/db_data
-    command: ["/bin/sh", "-c", "/migrate/db/migrations/db-migration.sh"]
+      - db-data:/db-data
+    command: ["/bin/sh", "-c", "/migrate/wait-for-db.sh -- /migrate/db-migration.sh"]
 
+  transact_api:
+    image: transact_api
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile
+    depends_on:
+      - db_migrate
+    env_file:
+      - docker-compose-local.env
+    ports:
+      - "8080:8080"
+    command: ["/bin/sh", "-c", "/app/wait-for-db.sh -- /app/transact-api"]
 volumes:
-  db_data:
-
-networks:
-  transact_network:
-    driver: bridge
+  pgdata:
+  pgadmin-data:
+  db-data:

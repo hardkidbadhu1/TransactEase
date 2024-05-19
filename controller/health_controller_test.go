@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"TransactEase/constants"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"transact-api/constants"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHealthz(t *testing.T) {

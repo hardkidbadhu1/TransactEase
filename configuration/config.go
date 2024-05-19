@@ -1,10 +1,10 @@
 package configuration
 
 import (
-	"TransactEase/constants"
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"transact-api/constants"
 )
 
 // Configuration interface for application configuration
@@ -17,6 +17,7 @@ type Configuration interface {
 	GetServerTimeOut() int
 	GetDBHost() string
 	GetDBPort() int
+	GetDBName() string
 	GetDBUser() string
 	GetDBPassword() string
 	GetAppMode() string
@@ -26,6 +27,10 @@ type Configuration interface {
 type configuration struct {
 	AppConfig
 	DBConfig `json:"db_config"`
+}
+
+func (c configuration) GetDBName() string {
+	return c.DBName
 }
 
 func (c configuration) GetAppHost() string {

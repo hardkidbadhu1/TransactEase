@@ -64,7 +64,7 @@ func TestParse(t *testing.T) {
 		t.Errorf("Expected DBUser to be 'testuser', got '%s'", cfg.GetDBUser())
 	}
 
-	if cfg.GetDBPassword() != "testpassword" {
+	if cfg.GetDBPassword() != "Password123" {
 		t.Errorf("Expected DBPassword to be 'testpassword', got '%s'", cfg.GetDBPassword())
 	}
 

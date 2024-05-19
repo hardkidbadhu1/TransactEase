@@ -1,4 +1,4 @@
 CREATE TABLE IF NOT EXISTS operations_types (
-    OperationType_ID INT PRIMARY KEY,
-    Description VARCHAR(255) UNIQUE
+    operation_type_id INT PRIMARY KEY,
+    description VARCHAR(255) UNIQUE
 );

@@ -1,5 +1,5 @@
 {
-  "app_name": "TransactEase",
+  "app_name": "transact-api",
   "app_mode": "debug",
   "port": "8080",
   "read_timeout": 30,
@@ -7,10 +7,10 @@
   "max_idle_time_out": 30,
   "server_timeout": 30,
   "db_config": {
-    "host": "localhost",
-    "port": 3306,
-    "user": "testuser",
-    "dbname": "testdb"
+    "host": "db",
+    "port": 5432,
+    "user": "transact_api",
+    "dbname": "transact_api"
   },
   "app_host": "localhost:8080"
 }

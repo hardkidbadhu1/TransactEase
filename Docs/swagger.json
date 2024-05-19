@@ -4,6 +4,93 @@
         "contact": {}
     },
     "paths": {
+        "/accounts": {
+            "post": {
+                "description": "Create account endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Create account endpoint",
+                "parameters": [
+                    {
+                        "description": "Account details",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AccountCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api_error.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api_error.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{documentNumber}": {
+            "get": {
+                "description": "Get account endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get account endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document number",
+                        "name": "documentNumber",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AccountResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api_error.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api_error.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/healthz": {
             "get": {
                 "description": "Health check endpoint",
@@ -21,7 +108,50 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.HealthResponse"
+                            "$ref": "#/definitions/response.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction": {
+            "post": {
+                "description": "Create transaction endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Create transaction endpoint",
+                "parameters": [
+                    {
+                        "description": "Transaction details",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.TransactionCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api_error.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api_error.ErrorResponse"
                         }
                     }
                 }
@@ -29,7 +159,70 @@
         }
     },
     "definitions": {
-        "model.HealthResponse": {
+        "api_error.ErrorCode": {
+            "type": "string",
+            "enum": [
+                "INVALID_REQUEST",
+                "INTERNAL_SERVER_ERROR"
+            ],
+            "x-enum-varnames": [
+                "InvalidRequest",
+                "InternalServerError"
+            ]
+        },
+        "api_error.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error_code": {
+                    "$ref": "#/definitions/api_error.ErrorCode"
+                },
+                "error_message": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AccountCreateRequest": {
+            "type": "object",
+            "required": [
+                "document_number"
+            ],
+            "properties": {
+                "document_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.TransactionCreateRequest": {
+            "type": "object",
+            "required": [
+                "account_id",
+                "amount",
+                "operation_type_id"
+            ],
+            "properties": {
+                "account_id": {
+                    "type": "integer"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "operation_type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.AccountResponse": {
+            "type": "object",
+            "properties": {
+                "account_id": {
+                    "type": "integer"
+                },
+                "document_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {

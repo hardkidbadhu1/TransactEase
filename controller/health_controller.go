@@ -1,17 +1,17 @@
 package controller
 
 import (
-	"TransactEase/constants"
-	"TransactEase/model"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"transact-api/constants"
+	"transact-api/model/dto/response"
+	"transact-api/utils"
 )
 
 type HealthController struct {
 }
 
 func NewController() *HealthController {
-	return new(HealthController)
+	return &HealthController{}
 }
 
 // HealthCheck godoc
@@ -20,14 +20,15 @@ func NewController() *HealthController {
 // @Description Health check endpoint
 // @Accept json
 // @Produce json
-// @Success 200 {object} model.HealthResponse
+// @Success 200 {object} response.HealthResponse
 // @Router /healthz [get]
 func (h HealthController) Healthz(ctx *gin.Context) {
-	logger := log.WithField("Class", "controller").
+	logger := utils.GetLogger(ctx)
+	logger = logger.WithField("Class", "controller").
 		WithField("Method", "Healthz")
 
 	logger.Info("Health check method initiated")
-	ctx.JSON(200, model.HealthResponse{
+	ctx.JSON(200, response.HealthResponse{
 		Status:  "ok",
 		Version: constants.AppVersion,
 	})

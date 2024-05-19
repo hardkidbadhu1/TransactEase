@@ -1,4 +1,4 @@
 CREATE TABLE IF NOT EXISTS accounts (
-    Account_ID INT PRIMARY KEY,
-    Document_Number VARCHAR(255) UNIQUE
+    account_id SERIAL PRIMARY KEY,
+    document_number VARCHAR(255) UNIQUE
 );

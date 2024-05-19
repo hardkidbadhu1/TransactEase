@@ -1,8 +1,8 @@
 package main
 
 import (
-	app "TransactEase/application"
-	"TransactEase/constants"
+	app "transact-api/application"
+	"transact-api/constants"
 )
 
 func main() {

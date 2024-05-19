@@ -1,5 +1,47 @@
 definitions:
-  model.HealthResponse:
+  api_error.ErrorCode:
+    enum:
+    - INVALID_REQUEST
+    - INTERNAL_SERVER_ERROR
+    type: string
+    x-enum-varnames:
+    - InvalidRequest
+    - InternalServerError
+  api_error.ErrorResponse:
+    properties:
+      error_code:
+        $ref: '#/definitions/api_error.ErrorCode'
+      error_message:
+        type: string
+    type: object
+  request.AccountCreateRequest:
+    properties:
+      document_number:
+        type: string
+    required:
+    - document_number
+    type: object
+  request.TransactionCreateRequest:
+    properties:
+      account_id:
+        type: integer
+      amount:
+        type: number
+      operation_type_id:
+        type: integer
+    required:
+    - account_id
+    - amount
+    - operation_type_id
+    type: object
+  response.AccountResponse:
+    properties:
+      account_id:
+        type: integer
+      document_number:
+        type: string
+    type: object
+  response.HealthResponse:
     properties:
       status:
         type: string
@@ -9,6 +51,63 @@ definitions:
 info:
   contact: {}
 paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: Create account endpoint
+      parameters:
+      - description: Account details
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/request.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api_error.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api_error.ErrorResponse'
+      summary: Create account endpoint
+      tags:
+      - Account
+  /accounts/{documentNumber}:
+    get:
+      consumes:
+      - application/json
+      description: Get account endpoint
+      parameters:
+      - description: Document number
+        in: path
+        name: documentNumber
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AccountResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api_error.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api_error.ErrorResponse'
+      summary: Get account endpoint
+      tags:
+      - Account
   /healthz:
     get:
       consumes:
@@ -20,8 +119,36 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.HealthResponse'
+            $ref: '#/definitions/response.HealthResponse'
       summary: Health check endpoint
       tags:
       - Health
+  /transaction:
+    post:
+      consumes:
+      - application/json
+      description: Create transaction endpoint
+      parameters:
+      - description: Transaction details
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/request.TransactionCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api_error.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api_error.ErrorResponse'
+      summary: Create transaction endpoint
+      tags:
+      - Transaction
 swagger: "2.0"

@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package application
 
 import (
@@ -23,10 +26,10 @@ func TestRun(t *testing.T) {
 		"max_idle_time_out": 30,
 		"server_timeout": 30,
 		"db_config": {
-			"host": "localhost",
-			"port": 3306,
-			"user": "testuser",
-			"dbname": "testdb"
+			"host": "db",
+			"port": 5432,
+			"user": "transact_api",
+			"dbname": "transact_api"
 		}
 	}`)
 	file.Close()

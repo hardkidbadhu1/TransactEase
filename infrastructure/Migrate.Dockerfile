@@ -1,21 +1,14 @@
-# Use an official Golang runtime as a parent image
 FROM golang:1.22.3-alpine3.19
 
-# Install git
-RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git bash postgresql-client
 
-# Install golang-migrate
-RUN go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
-# Set the Current Working Directory inside the container
 WORKDIR /migrate
 
-# Copy the migration files to the container
-COPY db/migrations db/migrations
+COPY db/migrations /migrate/db/migrations
+COPY docker-compose-scripts/wait-for-db.sh /migrate/wait-for-db.sh
+COPY db/migrations/db-migration.sh /migrate/db-migration.sh
 
-# change permission of the migration script
-RUN chmod +x db/migrations/db-migration.sh
-
-
-
-
+RUN chmod +x /migrate/wait-for-db.sh
+RUN chmod +x /migrate/db-migration.sh

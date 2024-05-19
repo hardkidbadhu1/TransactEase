@@ -1,10 +1,10 @@
 #!/bin/sh
 
-echo "Running migration for TransactEase database...."
+echo "Running migration for transact-api database...."
 
-DB_URL="mysql://$MYSQL_USER:$MYSQL_PASSWORD@$DB_HOST:$DB_PORT/$MYSQL_DATABASE"
+DB_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB?sslmode=disable"
 
 echo "DB URL: $DB_URL"
-migrate -path=. -database=$DB_URL -verbose up
+migrate -path=/migrate/db/migrations -database=$DB_URL -verbose up
 
 echo "Migration completed successfully."
