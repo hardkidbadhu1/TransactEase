@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
 	"net/http/httptest"
 	"testing"
 	"transact-api/model/entities"
@@ -11,7 +12,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -39,9 +39,8 @@ func (suite *AccountRepositoryTestSuite) SetupTest() {
 		suite.Fail("an error was not expected when opening a stub database connection", err)
 	}
 
-	gormDB, err := gorm.Open(mysql.New(mysql.Config{
-		Conn:                      db,
-		SkipInitializeWithVersion: true,
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
 	}), &gorm.Config{})
 	if err != nil {
 		suite.Fail("an error was not expected when opening gorm database", err)
