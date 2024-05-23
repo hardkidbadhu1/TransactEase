@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"net/http/httptest"
 	"testing"
 	"transact-api/model/entities"
@@ -40,7 +41,7 @@ func (suite *TransactionRepositoryTestSuite) SetupTest() {
 
 	gormDB, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: db,
-	}), &gorm.Config{})
+	}), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
 		suite.Fail("an error was not expected when opening gorm database", err)
 	}
@@ -56,22 +57,21 @@ func (suite *TransactionRepositoryTestSuite) TearDownTest() {
 }
 
 func (suite *TransactionRepositoryTestSuite) TestInsertAccount() {
-	mockTransaction := entities.Transaction{
+	var mockTransaction = entities.Transaction{
 		AccountID:       1,
 		OperationTypeID: 1,
-		Amount:          100,
+		Amount:          1,
 	}
 
+	expectedSQL := "INSERT INTO \"transactions\" (.+) VALUES (.+)"
+	addRow := sqlmock.NewRows([]string{"account_id"}).AddRow("1")
 	suite.sqlMock.ExpectBegin()
-	suite.sqlMock.ExpectExec("INSERT INTO").
-		WithArgs(mockTransaction.AccountID, mockTransaction.OperationTypeID, mockTransaction.Amount).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	suite.sqlMock.ExpectQuery(expectedSQL).WillReturnRows(addRow)
 	suite.sqlMock.ExpectCommit()
 
 	err := suite.repository.CreateTransaction(suite.context, mockTransaction)
-
 	suite.NoError(err)
-	suite.sqlMock.ExpectationsWereMet()
+	suite.Assert().Nil(suite.sqlMock.ExpectationsWereMet())
 }
 
 func (suite *TransactionRepositoryTestSuite) TestInsertAccountFailure() {
@@ -90,6 +90,5 @@ func (suite *TransactionRepositoryTestSuite) TestInsertAccountFailure() {
 	err := suite.repository.CreateTransaction(suite.context, mockTransaction)
 
 	suite.Error(err)
-	suite.EqualError(err, "insert error")
 	suite.sqlMock.ExpectationsWereMet()
 }

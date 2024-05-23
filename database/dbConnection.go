@@ -1,7 +1,6 @@
 package database
 
 import (
-	log "github.com/sirupsen/logrus"
 	"transact-api/configuration"
 
 	"fmt"
@@ -27,7 +26,6 @@ func ConnectDB(config configuration.Configuration) (*gorm.DB, error) {
 			config.GetDBPort(),
 		)
 
-		log.Println("dsn", dsn)
 		db, dbErr = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	})
 

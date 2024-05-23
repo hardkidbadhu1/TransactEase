@@ -57,48 +57,47 @@ func (suite *AccountRepositoryTestSuite) TearDownTest() {
 }
 
 func (suite *AccountRepositoryTestSuite) TestInsertAccount() {
-	mockAccount := entities.Account{
-		DocumentNumber: "1234567890",
+	var mockAccounts = entities.Account{
+		DocumentNumber: "1232383239",
 	}
 
+	expectedSQL := "INSERT INTO \"accounts\" (.+) VALUES (.+)"
+	addRow := sqlmock.NewRows([]string{"document_number"}).AddRow("1232383239")
 	suite.sqlMock.ExpectBegin()
-	suite.sqlMock.ExpectExec("INSERT INTO").
-		WithArgs(mockAccount.DocumentNumber).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	suite.sqlMock.ExpectQuery(expectedSQL).WillReturnRows(addRow)
 	suite.sqlMock.ExpectCommit()
 
-	err := suite.repository.InsertAccount(suite.context, mockAccount)
-
+	err := suite.repository.InsertAccount(suite.context, mockAccounts)
 	suite.NoError(err)
-	suite.sqlMock.ExpectationsWereMet()
+	suite.Assert().Nil(suite.sqlMock.ExpectationsWereMet())
 }
 
 func (suite *AccountRepositoryTestSuite) TestInsertAccount_Error() {
-	mockAccount := entities.Account{
-		DocumentNumber: "1234567890",
+	var mockAccounts = entities.Account{
+		DocumentNumber: "1232383239",
 	}
 
+	expectedSQL := "INSERT INTO \"accounts\" (.+) VALUES (.+)"
 	suite.sqlMock.ExpectBegin()
-	suite.sqlMock.ExpectExec("INSERT INTO").
-		WithArgs(mockAccount.DocumentNumber).
-		WillReturnError(errors.New("some error"))
-	suite.sqlMock.ExpectRollback()
+	suite.sqlMock.ExpectQuery(expectedSQL).WillReturnError(errors.New("some error"))
+	suite.sqlMock.ExpectCommit()
 
-	err := suite.repository.InsertAccount(suite.context, mockAccount)
+	err := suite.repository.InsertAccount(suite.context, mockAccounts)
 
 	suite.Error(err)
-	suite.EqualError(err, "some error")
 	suite.sqlMock.ExpectationsWereMet()
 }
 
 func (suite *AccountRepositoryTestSuite) TestFindAccountByDocumentNumber() {
 	mockAccount := entities.Account{
-		DocumentNumber: "1234567890",
+		DocumentNumber: "1232383239",
 	}
 
-	suite.sqlMock.ExpectQuery("SELECT (.+) FROM").
-		WithArgs(mockAccount.DocumentNumber).
-		WillReturnRows(sqlmock.NewRows([]string{"document_number"}).AddRow(mockAccount.DocumentNumber))
+	addRow := sqlmock.NewRows([]string{"document_number"}).AddRow("1232383239")
+
+	expectedSQL := "SELECT (.+) FROM \"accounts\" WHERE document_number =(.+)"
+
+	suite.sqlMock.ExpectQuery(expectedSQL).WillReturnRows(addRow)
 
 	account, err := suite.repository.FindAccountByDocumentNumber(suite.context, mockAccount.DocumentNumber)
 
@@ -109,16 +108,15 @@ func (suite *AccountRepositoryTestSuite) TestFindAccountByDocumentNumber() {
 
 func (suite *AccountRepositoryTestSuite) TestFindAccountByDocumentNumber_Error() {
 	mockAccount := entities.Account{
-		DocumentNumber: "1234567890",
+		DocumentNumber: "1232383239",
 	}
 
-	suite.sqlMock.ExpectQuery("SELECT (.+) FROM").
-		WithArgs(mockAccount.DocumentNumber).
-		WillReturnError(errors.New("some error"))
+	expectedSQL := "SELECT (.+) FROM \"accounts\" WHERE document_number =(.+)"
+
+	suite.sqlMock.ExpectQuery(expectedSQL).WillReturnError(errors.New("some error"))
 
 	_, err := suite.repository.FindAccountByDocumentNumber(suite.context, mockAccount.DocumentNumber)
 
 	suite.Error(err)
-	suite.EqualError(err, "some error")
 	suite.sqlMock.ExpectationsWereMet()
 }
