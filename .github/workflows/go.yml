@@ -38,9 +38,7 @@ jobs:
 
     - name: Run
       run: make Run
-
-    - name: Clean All
-      run: make clean_all
-      
+    - name: Clean
+      run: make clean
 
   
