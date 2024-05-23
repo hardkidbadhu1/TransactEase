@@ -37,7 +37,7 @@ jobs:
       run: make dockerise
 
     - name: Run
-      run: make run
+      run: make Run
 
     - name: Clean All
       run: make clean_all
