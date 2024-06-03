@@ -6,6 +6,7 @@ type TransactionCreateRequest struct {
 	AccountID       uint    `json:"account_id" binding:"required"`
 	OperationTypeID uint    `json:"operation_type_id" binding:"required"`
 	Amount          float64 `json:"amount" binding:"required"`
+	Balance         float64 `json:"-"`
 }
 
 func (req TransactionCreateRequest) ToEntity() entities.Transaction {
@@ -13,5 +14,6 @@ func (req TransactionCreateRequest) ToEntity() entities.Transaction {
 		AccountID:       req.AccountID,
 		OperationTypeID: req.OperationTypeID,
 		Amount:          req.Amount,
+		Balance:         req.Balance,
 	}
 }

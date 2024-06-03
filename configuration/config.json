@@ -7,7 +7,7 @@
   "max_idle_time_out": 30,
   "server_timeout": 30,
   "db_config": {
-    "host": "db",
+    "host": "localhost",
     "port": 5432,
     "user": "transact_api",
     "dbname": "transact_api"

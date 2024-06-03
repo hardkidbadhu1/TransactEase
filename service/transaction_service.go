@@ -16,6 +16,9 @@ type transactionService struct {
 }
 
 func (a transactionService) CreateTransaction(ctx *gin.Context, req request.TransactionCreateRequest) error {
+	if req.Amount < 0 {
+		req.Balance = req.Amount
+	}
 	return a.repo.CreateTransaction(ctx, req.ToEntity())
 }
 
