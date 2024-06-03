@@ -101,10 +101,7 @@ func (t *transactionRepo) createTransaction(ctx *gin.Context, dbTxn *gorm.DB, tr
 	}
 
 	// Fetch the last inserted record
-	result = dbTxn.Last(transaction)
-	if result.Error != nil {
-		logger.Errorf("error while fetching last inserted record - %v", result.Error)
-	}
+	result.Last(transaction)
 	return nil
 }
 

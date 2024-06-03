@@ -17,11 +17,12 @@ import (
 
 type TransactionRepositoryTestSuite struct {
 	suite.Suite
-	mockCtrl   *gomock.Controller
-	context    *gin.Context
-	sqlMock    sqlmock.Sqlmock
-	repository TransactionRepository
-	recorder   *httptest.ResponseRecorder
+	mockCtrl    *gomock.Controller
+	context     *gin.Context
+	sqlMock     sqlmock.Sqlmock
+	repository  TransactionRepository
+	recorder    *httptest.ResponseRecorder
+	transaction *gorm.DB
 }
 
 func TestTransactionRepository(t *testing.T) {
@@ -50,28 +51,33 @@ func (suite *TransactionRepositoryTestSuite) SetupTest() {
 	suite.mockCtrl = gomock.NewController(suite.T())
 	suite.context, _ = gin.CreateTestContext(suite.recorder)
 	suite.repository = NewTransactionRepo(gormDB)
+	suite.transaction = gormDB
 }
 
 func (suite *TransactionRepositoryTestSuite) TearDownTest() {
 	suite.mockCtrl.Finish()
 }
 
-func (suite *TransactionRepositoryTestSuite) TestInsertAccount() {
-	var mockTransaction = entities.Transaction{
+func (suite *TransactionRepositoryTestSuite) TestCreateTransaction() {
+	mockTransaction := entities.Transaction{
 		AccountID:       1,
 		OperationTypeID: 1,
-		Amount:          1,
+		Amount:          -50,
+		Balance:         -50,
 	}
 
-	expectedSQL := "INSERT INTO \"transactions\" (.+) VALUES (.+)"
-	addRow := sqlmock.NewRows([]string{"account_id"}).AddRow("1")
+	suite.transaction = suite.transaction.Begin()
+	defer suite.transaction.Commit()
 	suite.sqlMock.ExpectBegin()
-	suite.sqlMock.ExpectQuery(expectedSQL).WillReturnRows(addRow)
+	addRow := sqlmock.NewRows([]string{"account_id", "operation_type_id", "amount", "balance"}).
+		AddRow("1", "1", "-50", "-50")
+	suite.sqlMock.ExpectQuery("INSERT INTO \"transactions\" (.+) VALUES (.+)").
+		WillReturnRows(addRow)
 	suite.sqlMock.ExpectCommit()
-
 	err := suite.repository.CreateTransaction(suite.context, mockTransaction)
 	suite.NoError(err)
-	suite.Assert().Nil(suite.sqlMock.ExpectationsWereMet())
+	err = suite.sqlMock.ExpectationsWereMet()
+	suite.NoError(err, "there were unfulfilled expectations")
 }
 
 func (suite *TransactionRepositoryTestSuite) TestInsertAccountFailure() {
@@ -91,4 +97,35 @@ func (suite *TransactionRepositoryTestSuite) TestInsertAccountFailure() {
 
 	suite.Error(err)
 	suite.sqlMock.ExpectationsWereMet()
+}
+
+func (suite *TransactionRepositoryTestSuite) TestAdjustBalance() {
+	creditTransaction := entities.Transaction{
+		ID:              4,
+		AccountID:       1,
+		OperationTypeID: 4,
+		Amount:          80,
+	}
+
+	suite.sqlMock.ExpectBegin()
+
+	suite.transaction = suite.transaction.Begin()
+
+	rows := sqlmock.NewRows([]string{"transaction_id", "account_id", "operation_type_id", "amount", "balance"}).
+		AddRow("1", "1", "1", "-50", "-50").
+		AddRow("2", "1", "1", "-30", "-30")
+	suite.sqlMock.ExpectQuery("SELECT (.+) FROM \"transactions\" WHERE account_id =(.+) AND balance < 0").
+		WillReturnRows(rows)
+	suite.sqlMock.ExpectExec("UPDATE \"transactions\" SET (.+) WHERE \"transaction_id\" = (.+)").
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	suite.sqlMock.ExpectExec("UPDATE \"transactions\" SET (.+) WHERE \"transaction_id\" = (.+)").
+		WillReturnResult(sqlmock.NewResult(2, 1))
+	suite.sqlMock.ExpectCommit()
+
+	err := suite.repository.AdjustBalance(suite.context, &creditTransaction, suite.transaction)
+
+	suite.NoError(err)
+	suite.transaction.Commit()
+	err = suite.sqlMock.ExpectationsWereMet()
+	suite.NoError(err, "there were unfulfilled expectations")
 }

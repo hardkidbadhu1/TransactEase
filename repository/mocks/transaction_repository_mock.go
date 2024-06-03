@@ -10,6 +10,7 @@ import (
 
 	gin "github.com/gin-gonic/gin"
 	gomock "github.com/golang/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockTransactionRepository is a mock of TransactionRepository interface.
@@ -33,6 +34,20 @@ func NewMockTransactionRepository(ctrl *gomock.Controller) *MockTransactionRepos
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockTransactionRepository) EXPECT() *MockTransactionRepositoryMockRecorder {
 	return m.recorder
+}
+
+// AdjustBalance mocks base method.
+func (m *MockTransactionRepository) AdjustBalance(ctx *gin.Context, transaction *entities.Transaction, dbTxn *gorm.DB) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AdjustBalance", ctx, transaction, dbTxn)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AdjustBalance indicates an expected call of AdjustBalance.
+func (mr *MockTransactionRepositoryMockRecorder) AdjustBalance(ctx, transaction, dbTxn interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AdjustBalance", reflect.TypeOf((*MockTransactionRepository)(nil).AdjustBalance), ctx, transaction, dbTxn)
 }
 
 // CreateTransaction mocks base method.
